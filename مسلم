@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>مار و پله</title>
+	<style>
+		#board {
+			width: 300px;
+			height: 300px;
+			border: 2px solid black;
+			position: relative;
+			margin: 0 auto;
+		}
+		.square {
+			width: 30px;
+			height: 30px;
+			float: left;
+			border: 1px solid black;
+			box-sizing: border-box;
+			background-color: white;
+			background-size: cover;
+			background-position: center;
+			position: relative;
+		}
+		.snake {
+			background-color: green;
+		}
+		.snake-head {
+			background-color: darkgreen;
+		}
+		.ladder {
+			background-color: blue;
+		}
+		.ladder-top {
+			width: 0;
+			height: 0;
+			border-left: 15px solid transparent;
+			border-right: 15px solid transparent;
+			border-bottom: 30px solid blue;
+			position: absolute;
+			top: 0;
+			left: 50%;
+			transform: translate(-50%, 0);
+		}
+		.message {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			font-size: 30px;
+			text-align: center;
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="board"></div>
+	<div class="message">دوستت دارم عشق مسلم</div>
+	<script>
+		var board = document.getElementById('board');
+		var message = document.querySelector('.message');
+		var ROWS = 10;
+		var COLS = 10;
+
+		var boardArray = [];
+		for (var i = 0; i < ROWS * COLS; i++) {
+		  boardArray[i] = {
+		    snake: false,
+		    ladder: false
+		  };
+		}
+
+		// Create snakes and ladders
+		boardArray[16].snake = 6;
+		boardArray[47].snake = 25;
+		boardArray[49].snake = 11;
+		boardArray[56].snake = 53;
+		boardArray[62].snake = 19;
+		boardArray[64].snake = 60;
+		boardArray[87].snake = 24;
+		boardArray[93].snake = 73;
+		boardArray[95].snake = 75;
+		boardArray[98].snake = 78;
+		boardArray[1].ladder = 38;
+		boardArray[4].ladder = 14;
+		boardArray[9].ladder = 31;
+		boardArray[21].ladder = 42;
+		boardArray[28].ladder = 84;
+		boardArray[36].ladder = 44;
+		boardArray[51].ladder = 67;
+		boardArray[71].ladder = 91;
+		boardArray[80].ladder = 100;
+
+		// Create board
+		for (var row = 0; row < ROWS; row++) {
+		  for (var col = 0; col < COLS; col++) {
+		    var square = document.createElement('div');
+		    square.classList.add('square');
+		    if ((row + col) % 2 === 0) {
+		      square.style.backgroundColor = '#ccc';
+		    }
+		    square.setAttribute('data-row', row);
+		    square.setAttribute('data-col', col);
+		    board.appendChild(square);
+		    boardArray[row * COLS + col].element = square;
+		  }
+		}
+
+		// Create snake and ladder tops
+		for (var i = 0; i < ROWS * COLS; i++) {
+		  if (boardArray[i].snake) {
+		    var top = document.createElement('div');
+		    top.classList.add('ladder-top');
+		    boardArray[i].element.appendChild(top);
+		  } else if (boardArray[i].ladder) {
+		    var top = document.createElement('div');
+		    top.classList.add('ladder-top');
+		    top.style.transform = 'rotate(180deg)';
+		    boardArray[i].element.appendChild(top);
+		  }
+		}
+
+		// Initialize game
+		var snakePos = 0;
+		var gameOver = false;
+		boardArray[snakePos].snake = true;
+		boardArray[snakePos].element.classList.add('snake');
+		boardArray[snakePos].element.classList.add('snake-head');
+
+		// Handle dice roll
+		document.addEventListener('keydown', function(event) {
+		  if (event.key === ' ') {
+		    if (gameOver) {
+		      snakePos = 0;
+		      gameOver = false;
+		      boardArray.forEach(function(square) {
+		        square.snake = false;
+		        square.element.classList.remove('snake', 'snake-head');
+		      });
+		      boardArray[snakePos].snake = true;
+		      boardArray[snakePos].element.classList.add('snake');
+		      boardArray[snakePos].element.classList.add('snake-head');
+		      message.style.display = 'none';
+		    } else {
+		      var diceRoll = Math.floor(Math.random() * 6) + 1;
+		      snakePos += diceRoll;
+		      if (snakePos >= ROWS * COLS - 1) {
+		        gameOver = true;
+		        message.style.display = 'block';
+		      }
+		      if (boardArray[snakePos].snake) {
+		        snakePos = boardArray[snakePos].snake;
+		      } else if (boardArray[snakePos].ladder) {
+		        snakePos = boardArray[snakePos].ladder;
+		      }
+		      boardArray.forEach(function(square) {
+		        square.snake = false;
+		        square.element.classList.remove('snake', 'snake-head');
+		      });
+		      boardArray[snakePos].snake = true;
+		      boardArray[snakePos].element.classList.add('snake');
+		      boardArray[snakePos].element.classList.add('snake-head');
+		    }
+		  }
+		});
+	</script>
+</body>
+</html>
